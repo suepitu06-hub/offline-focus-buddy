@@ -15,6 +15,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BottomNav } from "@/components/BottomNav";
 import { ensureSettings } from "@/database/db";
 import { useThemeEffect } from "@/hooks/useTheme";
+import { Toaster } from "@/components/ui/sonner";
+import { installGlobalErrorHandlers } from "@/lib/error-handler";
 
 function NotFoundComponent() {
   return (
