@@ -183,7 +183,7 @@ export function ActivityModal({
             onClick={handleSave}
             className="flex-1 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
-            Save
+            {editing ? "Update" : "Save"}
           </button>
         </div>
       </div>
