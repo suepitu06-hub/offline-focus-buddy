@@ -42,13 +42,16 @@ export function ActivityModal({
       setTime(currentTime());
       setNote("");
     }
-  }, [open, editing]);
+  }, [open, editing?.id]);
 
   if (!open) return null;
 
   async function handleSave() {
     const total = hours * 60 + minutes;
-    if (total <= 0) return;
+    if (total <= 0) {
+      alert("Duration must be greater than 0 minutes.");
+      return;
+    }
     const payload: Omit<Activity, "id"> = {
       application,
       category,
@@ -58,12 +61,16 @@ export function ActivityModal({
       note: note.trim() || undefined,
       createdAt: editing?.createdAt ?? Date.now(),
     };
-    if (editing?.id != null) {
-      await db.activities.update(editing.id, payload);
-    } else {
-      await db.activities.add(payload as Activity);
+    try {
+      if (editing?.id != null) {
+        await db.activities.update(editing.id, payload);
+      } else {
+        await db.activities.add(payload as Activity);
+      }
+      onClose();
+    } catch (err) {
+      alert("Could not save activity: " + (err as Error).message);
     }
-    onClose();
   }
 
   return (
