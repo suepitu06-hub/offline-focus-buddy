@@ -23,8 +23,8 @@ function SettingsPage() {
 
   if (!settings) return <div className="p-5">Loading…</div>;
 
-  async function update<K extends keyof typeof settings>(key: K, value: (typeof settings)[K]) {
-    await db.settings.update(1, { [key]: value });
+  async function update(patch: Record<string, unknown>) {
+    await db.settings.update(1, patch);
   }
 
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
