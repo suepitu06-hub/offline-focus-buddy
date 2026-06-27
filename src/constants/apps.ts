@@ -1,0 +1,17 @@
+export const APPLICATIONS = [
+  "YouTube",
+  "Instagram",
+  "TikTok",
+  "WhatsApp",
+  "Facebook",
+  "Messenger",
+  "Chrome",
+  "Netflix",
+  "Telegram",
+  "Discord",
+  "Spotify",
+  "Gaming",
+  "Reading",
+  "Learning",
+  "Other",
+] as const;
