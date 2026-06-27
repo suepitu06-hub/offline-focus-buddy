@@ -97,7 +97,7 @@ function Stats() {
             <XAxis dataKey="day" stroke="var(--color-muted-foreground)" fontSize={12} />
             <YAxis stroke="var(--color-muted-foreground)" fontSize={12} />
             <Tooltip
-              formatter={(v: number) => formatMinutes(v)}
+              formatter={(v: any) => formatMinutes(Number(v))}
               contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12 }}
             />
             <Bar dataKey="minutes" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
@@ -112,7 +112,7 @@ function Stats() {
             <XAxis dataKey="day" stroke="var(--color-muted-foreground)" fontSize={10} />
             <YAxis stroke="var(--color-muted-foreground)" fontSize={12} />
             <Tooltip
-              formatter={(v: number) => formatMinutes(v)}
+              formatter={(v: any) => formatMinutes(Number(v))}
               contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12 }}
             />
             <Line type="monotone" dataKey="minutes" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
@@ -128,7 +128,7 @@ function Stats() {
                 <Cell key={c.name} fill={CATEGORY_COLORS[c.name]} />
               ))}
             </Pie>
-            <Tooltip formatter={(v: number) => formatMinutes(v)} />
+            <Tooltip formatter={(v: any) => formatMinutes(Number(v))} />
           </PieChart>
         </ResponsiveContainer>
         <ul className="mt-3 grid grid-cols-2 gap-2 text-xs">

@@ -52,7 +52,7 @@ function SettingsPage() {
             <button
               key={m}
               type="button"
-              onClick={() => update("dailyGoalMinutes", m)}
+              onClick={() => update({ dailyGoalMinutes: m })}
               className={`rounded-xl border px-3 py-2 text-sm font-medium ${
                 settings.dailyGoalMinutes === m
                   ? "border-primary bg-primary/10 text-primary"
@@ -76,7 +76,7 @@ function SettingsPage() {
             type="button"
             onClick={() => {
               const n = Number(customGoal);
-              if (n > 0) update("dailyGoalMinutes", n);
+              if (n > 0) update({ dailyGoalMinutes: n });
               setCustomGoal("");
             }}
             className="rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground"
@@ -97,7 +97,7 @@ function SettingsPage() {
           <input
             type="checkbox"
             checked={settings.reminderEnabled}
-            onChange={(e) => update("reminderEnabled", e.target.checked)}
+            onChange={(e) => update({ reminderEnabled: e.target.checked })}
             className="h-5 w-9 cursor-pointer"
           />
         </Row>
@@ -107,7 +107,7 @@ function SettingsPage() {
               <button
                 key={m}
                 type="button"
-                onClick={() => update("reminderInterval", m)}
+                onClick={() => update({ reminderInterval: m })}
                 className={`rounded-xl border px-2 py-2 text-xs font-medium ${
                   settings.reminderInterval === m
                     ? "border-primary bg-primary/10 text-primary"
@@ -127,7 +127,7 @@ function SettingsPage() {
             <button
               key={t}
               type="button"
-              onClick={() => update("theme", t)}
+              onClick={() => update({ theme: t })}
               className={`rounded-xl border px-3 py-2 text-sm font-medium capitalize ${
                 settings.theme === t
                   ? "border-primary bg-primary/10 text-primary"
