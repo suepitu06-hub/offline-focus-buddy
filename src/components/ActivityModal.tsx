@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { reportError } from "@/lib/error-handler";
 import { X } from "lucide-react";
 import type { Activity, Category } from "@/types";
 import { APPLICATIONS } from "@/constants/apps";
@@ -49,7 +51,7 @@ export function ActivityModal({
   async function handleSave() {
     const total = hours * 60 + minutes;
     if (total <= 0) {
-      alert("Duration must be greater than 0 minutes.");
+      toast.error("Duration must be greater than 0 minutes.");
       return;
     }
     const payload: Omit<Activity, "id"> = {
@@ -69,7 +71,7 @@ export function ActivityModal({
       }
       onClose();
     } catch (err) {
-      alert("Could not save activity: " + (err as Error).message);
+      reportError(err, "Could not save activity");
     }
   }
 

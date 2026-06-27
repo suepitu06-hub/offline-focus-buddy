@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { reportError } from "@/lib/error-handler";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useRef, useState } from "react";
 import { Download, FileJson, Upload, RotateCcw, Sparkles } from "lucide-react";
@@ -33,9 +35,9 @@ function SettingsPage() {
     const text = await file.text();
     try {
       await importJSON(text);
-      alert("Import successful");
+      toast.success("Import successful");
     } catch (err) {
-      alert("Import failed: " + (err as Error).message);
+      reportError(err, "Import failed");
     }
     e.target.value = "";
   }
@@ -171,7 +173,7 @@ function SettingsPage() {
             label="Load Sample Data"
             onClick={async () => {
               await seedSampleData();
-              alert("Sample data added");
+              toast.success("Sample data added");
             }}
           />
           <SettingButton
