@@ -15,6 +15,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BottomNav } from "@/components/BottomNav";
 import { ensureSettings } from "@/database/db";
 import { useThemeEffect } from "@/hooks/useTheme";
+import { Toaster } from "@/components/ui/sonner";
+import { installGlobalErrorHandlers } from "@/lib/error-handler";
 
 function NotFoundComponent() {
   return (
@@ -96,6 +98,9 @@ function ThemeBridge() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => {
+    installGlobalErrorHandlers();
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeBridge />
@@ -105,6 +110,7 @@ function RootComponent() {
         </div>
         <BottomNav />
       </div>
+      <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );
 }
