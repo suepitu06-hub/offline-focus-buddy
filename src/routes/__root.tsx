@@ -98,6 +98,9 @@ function ThemeBridge() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => {
+    installGlobalErrorHandlers();
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeBridge />
@@ -107,6 +110,7 @@ function RootComponent() {
         </div>
         <BottomNav />
       </div>
+      <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );
 }
