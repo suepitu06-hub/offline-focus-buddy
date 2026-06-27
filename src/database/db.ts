@@ -28,7 +28,14 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export async function ensureSettings(): Promise<Settings> {
   const existing = await db.settings.get(1);
-  if (existing) return existing;
-  await db.settings.put(DEFAULT_SETTINGS);
-  return DEFAULT_SETTINGS;
+  return existing ?? DEFAULT_SETTINGS;
+}
+
+export async function initSettings(): Promise<void> {
+  const existing = await db.settings.get(1);
+  if (!existing) await db.settings.put(DEFAULT_SETTINGS);
+}
+
+if (typeof window !== "undefined") {
+  void initSettings();
 }
