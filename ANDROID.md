@@ -2,6 +2,12 @@
 
 This project is wired up with Capacitor. The `android/` folder is generated locally on your machine (it is not committed and cannot be produced inside the Lovable sandbox because it needs the Android SDK).
 
+## Why there are two builds
+
+The default `npm run build` targets **Cloudflare Workers** (SSR via TanStack Start + Nitro). It emits `dist/client/` (assets only, no `index.html`) and `dist/server/` (Worker code). Capacitor needs a **plain static SPA** with a real `index.html`, so this repo ships a second config, `vite.mobile.config.ts`, that emits one into `dist-mobile/`.
+
+That's the folder Capacitor is pointed at (`webDir: "dist-mobile"` in `capacitor.config.ts`). Capacitor runs from a `file://` origin inside a WebView, so the SPA uses `createMemoryHistory` and `base: "./"` — routing works entirely in memory, no server required.
+
 ## One-time setup on your computer
 
 Prerequisites:
@@ -13,7 +19,7 @@ After cloning / pulling the repo:
 
 ```bash
 npm install
-npm run build            # produces dist/ that Capacitor copies into the app
+npm run build:mobile     # produces dist-mobile/ (static SPA with index.html)
 npx cap add android      # creates the android/ native project
 npx cap sync android
 npx cap open android     # opens Android Studio
@@ -22,14 +28,14 @@ npx cap open android     # opens Android Studio
 ## Every time you change web code
 
 ```bash
-npm run build
+npm run build:mobile
 npx cap sync android
 ```
 
 Or use the shortcut:
 
 ```bash
-npm run android          # build + sync + open Android Studio
+npm run android          # build:mobile + sync + open Android Studio
 ```
 
 ## App identity
@@ -37,7 +43,7 @@ npm run android          # build + sync + open Android Studio
 Configured in `capacitor.config.ts`:
 - **appId**: `com.screentimemanagement.app`
 - **appName**: `Screen Time Management`
-- **webDir**: `dist`
+- **webDir**: `dist-mobile`
 
 If you change `appId` later, delete the `android/` folder and run `npx cap add android` again.
 

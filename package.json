@@ -10,10 +10,11 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "build:mobile": "vite build --config vite.mobile.config.ts",
     "cap:add:android": "cap add android",
-    "cap:sync": "cap sync android",
+    "cap:sync": "npm run build:mobile && cap sync android",
     "cap:open:android": "cap open android",
-    "android": "vite build && cap sync android && cap open android"
+    "android": "npm run build:mobile && cap sync android && cap open android"
   },
 
   "dependencies": {
