@@ -4,6 +4,13 @@ const config: CapacitorConfig = {
   appId: "com.screentimemanagement.app",
   appName: "Screen Time Management",
   webDir: "dist",
+  android: {
+    allowMixedContent: false,
+    backgroundColor: "#ffffff",
+  },
+  server: {
+    androidScheme: "https",
+  },
 };
 
 export default config;
