@@ -86,6 +86,12 @@
     color: var(--color-foreground);
     -webkit-tap-highlight-color: transparent;
   }
+  /* Android WebView: keep a focused field clear of the soft keyboard when the
+     browser scrolls it into view. */
+  input, textarea, select {
+    scroll-margin-block: 6rem;
+    font-size: max(16px, 0.875rem); /* prevents WebView auto-zoom on focus */
+  }
 }
 
 @utility input {
