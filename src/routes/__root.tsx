@@ -17,6 +17,7 @@ import { ensureSettings } from "@/database/db";
 import { useThemeEffect } from "@/hooks/useTheme";
 import { Toaster } from "@/components/ui/sonner";
 import { installGlobalErrorHandlers } from "@/lib/error-handler";
+import { useKeyboardInsets } from "@/hooks/useKeyboardInsets";
 
 function NotFoundComponent() {
   return (
@@ -109,10 +110,17 @@ function RootComponent() {
   useEffect(() => {
     installGlobalErrorHandlers();
   }, []);
+  useKeyboardInsets();
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeBridge />
-      <div className="min-h-screen bg-background pb-24">
+      <div
+        className="bg-background"
+        style={{
+          minHeight: "100dvh",
+          paddingBottom: "calc(6rem + var(--kb-inset, 0px))",
+        }}
+      >
         <div className="mx-auto w-full max-w-md">
           <Outlet />
         </div>
