@@ -90,7 +90,12 @@
      browser scrolls it into view. */
   input, textarea, select {
     scroll-margin-block: 6rem;
-    font-size: max(16px, 0.875rem); /* prevents WebView auto-zoom on focus */
+  }
+  @media (pointer: coarse) {
+    /* Prevents Android WebView auto-zoom when a field gains focus. */
+    input, textarea, select {
+      font-size: max(16px, 1em);
+    }
   }
 }
 
