@@ -80,7 +80,7 @@ function TodayLog() {
           setModalOpen(true);
         }}
         aria-label="Add activity"
-        className="fixed bottom-24 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90"
+        className="fixed bottom-24 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 [body.keyboard-open_&]:hidden"
       >
         <Plus className="h-6 w-6" />
       </button>

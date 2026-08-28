@@ -76,8 +76,16 @@ export function ActivityModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center">
-      <div className="w-full max-w-md rounded-t-3xl bg-card p-5 shadow-xl sm:rounded-3xl">
+    <div className="fixed inset-0 z-50 flex items-end justify-center overflow-hidden bg-black/50 sm:items-center">
+      <div
+        className="flex w-full max-w-md flex-col overflow-y-auto overscroll-contain rounded-t-3xl bg-card p-5 shadow-xl sm:rounded-3xl"
+        style={{
+          // Keep the sheet inside the visible area when the Android soft
+          // keyboard shrinks the WebView, and keep Save reachable.
+          maxHeight: "calc(100dvh - var(--kb-inset, 0px) - 1rem)",
+          paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))",
+        }}
+      >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">{editing ? "Edit Activity" : "Add Activity"}</h2>
           <button
