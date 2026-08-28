@@ -11,6 +11,14 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: "https",
   },
+  plugins: {
+    Keyboard: {
+      // Resize the WebView itself so fixed/absolute layout math stays valid
+      // while the Android soft keyboard is open.
+      resize: "native" as never,
+      resizeOnFullScreen: true,
+    },
+  },
 };
 
 export default config;
