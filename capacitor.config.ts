@@ -1,4 +1,5 @@
 import type { CapacitorConfig } from "@capacitor/cli";
+import { KeyboardResize } from "@capacitor/keyboard";
 
 const config: CapacitorConfig = {
   appId: "com.screentimemanagement.app",
@@ -15,7 +16,7 @@ const config: CapacitorConfig = {
     Keyboard: {
       // Resize the WebView itself so fixed/absolute layout math stays valid
       // while the Android soft keyboard is open.
-      resize: "native" as never,
+      resize: KeyboardResize.Native,
       resizeOnFullScreen: true,
     },
   },
