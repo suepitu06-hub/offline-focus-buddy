@@ -1,12 +1,42 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { reportError } from "@/lib/error-handler";
-import { X } from "lucide-react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Activity, Category } from "@/types";
 import { APPLICATIONS } from "@/constants/apps";
 import { CATEGORIES } from "@/constants/categories";
-import { todayISO, currentTime } from "@/utils/date";
+import { NOTE_PRESETS } from "@/constants/notes";
+import { todayISO, currentTime, formatTime12h } from "@/utils/date";
+import { formatMinutes } from "@/utils/statistics";
 import { db } from "@/database/db";
+import { ChipGroup, Stepper } from "@/components/keyboard-free";
+
+const DURATION_PRESETS = [15, 30, 45, 60, 90, 120];
+
+function shiftDate(iso: string, days: number): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + days);
+  return todayISO(dt);
+}
+
+function dateLabel(iso: string): string {
+  if (iso === todayISO()) return "Today";
+  if (iso === shiftDate(todayISO(), -1)) return "Yesterday";
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function shiftTime(time: string, deltaMinutes: number): string {
+  const [h, m] = time.split(":").map(Number);
+  let total = (h * 60 + m + deltaMinutes) % (24 * 60);
+  if (total < 0) total += 24 * 60;
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+}
 
 export function ActivityModal({
   open,
@@ -19,48 +49,52 @@ export function ActivityModal({
 }) {
   const [application, setApplication] = useState<string>("YouTube");
   const [category, setCategory] = useState<Category>("Entertainment");
-  const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(15);
+  const [duration, setDuration] = useState(15);
   const [date, setDate] = useState(todayISO());
   const [time, setTime] = useState(currentTime());
-  const [note, setNote] = useState("");
+  const [notes, setNotes] = useState<string[]>([]);
 
   useEffect(() => {
     if (!open) return;
     if (editing) {
       setApplication(editing.application);
       setCategory(editing.category);
-      setHours(Math.floor(editing.durationMinutes / 60));
-      setMinutes(editing.durationMinutes % 60);
+      setDuration(editing.durationMinutes);
       setDate(editing.date);
       setTime(editing.time);
-      setNote(editing.note ?? "");
+      setNotes(
+        editing.note
+          ? editing.note.split(", ").filter((n) => (NOTE_PRESETS as readonly string[]).includes(n))
+          : [],
+      );
     } else {
       setApplication("YouTube");
       setCategory("Entertainment");
-      setHours(0);
-      setMinutes(15);
+      setDuration(15);
       setDate(todayISO());
       setTime(currentTime());
-      setNote("");
+      setNotes([]);
     }
   }, [open, editing?.id]);
 
   if (!open) return null;
 
+  function toggleNote(n: string) {
+    setNotes((prev) => (prev.includes(n) ? prev.filter((x) => x !== n) : [...prev, n]));
+  }
+
   async function handleSave() {
-    const total = hours * 60 + minutes;
-    if (total <= 0) {
+    if (duration <= 0) {
       toast.error("Duration must be greater than 0 minutes.");
       return;
     }
     const payload: Omit<Activity, "id"> = {
       application,
       category,
-      durationMinutes: total,
+      durationMinutes: duration,
       date,
       time,
-      note: note.trim() || undefined,
+      note: notes.length ? notes.join(", ") : undefined,
       createdAt: editing?.createdAt ?? Date.now(),
     };
     try {
@@ -80,9 +114,7 @@ export function ActivityModal({
       <div
         className="flex w-full max-w-md flex-col overflow-y-auto overscroll-contain rounded-t-3xl bg-card p-5 shadow-xl sm:rounded-3xl"
         style={{
-          // Keep the sheet inside the visible area when the Android soft
-          // keyboard shrinks the WebView, and keep Save reachable.
-          maxHeight: "calc(100dvh - var(--kb-inset, 0px) - 1rem)",
+          maxHeight: "calc(100dvh - 1rem)",
           paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))",
         }}
       >
@@ -100,83 +132,134 @@ export function ActivityModal({
 
         <div className="space-y-4">
           <Field label="Application">
-            <select
-              value={application}
-              onChange={(e) => setApplication(e.target.value)}
-              className="input"
-            >
-              {APPLICATIONS.map((a) => (
-                <option key={a} value={a}>
-                  {a}
-                </option>
-              ))}
-            </select>
+            <ChipGroup options={APPLICATIONS} value={application} onChange={setApplication} columns={3} />
           </Field>
 
           <Field label="Category">
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value as Category)}
-              className="input"
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+            <ChipGroup options={CATEGORIES} value={category} onChange={setCategory} columns={2} />
           </Field>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Hours">
-              <input
-                type="number"
-                min={0}
-                max={23}
-                value={hours}
-                onChange={(e) => setHours(Math.max(0, Number(e.target.value) || 0))}
-                className="input"
+          <Field label={`Duration · ${formatMinutes(duration)}`}>
+            <div className="mb-2 grid grid-cols-3 gap-2">
+              {DURATION_PRESETS.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setDuration(m)}
+                  aria-pressed={duration === m}
+                  className={`rounded-xl border px-2 py-2 text-xs font-medium ${
+                    duration === m
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-card text-foreground"
+                  }`}
+                >
+                  {formatMinutes(m)}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Stepper
+                label="Hours"
+                display={String(Math.floor(duration / 60))}
+                onDecrement={() => setDuration((d) => Math.max(5, d - 60))}
+                onIncrement={() => setDuration((d) => Math.min(23 * 60 + 55, d + 60))}
+                disabledDecrement={duration < 60}
               />
-            </Field>
-            <Field label="Minutes">
-              <input
-                type="number"
-                min={0}
-                max={59}
-                value={minutes}
-                onChange={(e) => setMinutes(Math.max(0, Math.min(59, Number(e.target.value) || 0)))}
-                className="input"
+              <Stepper
+                label="Minutes"
+                display={`${duration % 60}`}
+                onDecrement={() => setDuration((d) => Math.max(5, d - 5))}
+                onIncrement={() => setDuration((d) => Math.min(23 * 60 + 55, d + 5))}
+                disabledDecrement={duration <= 5}
               />
-            </Field>
-          </div>
+            </div>
+          </Field>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Date">
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="input"
+          <Field label="Date">
+            <div className="flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-2 py-2">
+              <button
+                type="button"
+                onClick={() => setDate((d) => shiftDate(d, -1))}
+                aria-label="Previous day"
+                className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-secondary-foreground"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="text-sm font-semibold">{dateLabel(date)}</span>
+              <button
+                type="button"
+                onClick={() => setDate((d) => (d >= todayISO() ? d : shiftDate(d, 1)))}
+                disabled={date >= todayISO()}
+                aria-label="Next day"
+                className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-secondary-foreground disabled:opacity-40"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              {[0, -1, -2].map((off) => {
+                const iso = shiftDate(todayISO(), off);
+                return (
+                  <button
+                    key={off}
+                    type="button"
+                    onClick={() => setDate(iso)}
+                    aria-pressed={date === iso}
+                    className={`rounded-xl border px-2 py-2 text-xs font-medium ${
+                      date === iso
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-card text-foreground"
+                    }`}
+                  >
+                    {dateLabel(iso)}
+                  </button>
+                );
+              })}
+            </div>
+          </Field>
+
+          <Field label={`Time · ${formatTime12h(time)}`}>
+            <div className="grid grid-cols-2 gap-2">
+              <Stepper
+                label="Hour"
+                display={time.split(":")[0]}
+                onDecrement={() => setTime((t) => shiftTime(t, -60))}
+                onIncrement={() => setTime((t) => shiftTime(t, 60))}
               />
-            </Field>
-            <Field label="Time">
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="input"
+              <Stepper
+                label="Minute"
+                display={time.split(":")[1]}
+                onDecrement={() => setTime((t) => shiftTime(t, -5))}
+                onIncrement={() => setTime((t) => shiftTime(t, 5))}
               />
-            </Field>
-          </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setTime(currentTime())}
+              className="mt-2 w-full rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold hover:bg-accent"
+            >
+              Set to now
+            </button>
+          </Field>
 
           <Field label="Note (optional)">
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={3}
-              placeholder="Add a note about this activity"
-              className="input resize-none"
-            />
+            <div className="flex flex-wrap gap-2">
+              {NOTE_PRESETS.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => toggleNote(n)}
+                  aria-pressed={notes.includes(n)}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium ${
+                    notes.includes(n)
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-card text-foreground"
+                  }`}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
           </Field>
         </div>
 
@@ -203,9 +286,9 @@ export function ActivityModal({
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block">
+    <div className="block">
       <span className="mb-1 block text-xs font-medium text-muted-foreground">{label}</span>
       {children}
-    </label>
+    </div>
   );
 }
