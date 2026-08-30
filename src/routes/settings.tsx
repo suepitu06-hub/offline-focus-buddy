@@ -65,26 +65,18 @@ function SettingsPage() {
             </button>
           ))}
         </div>
-        <div className="mt-3 flex gap-2">
-          <input
-            type="number"
-            min={15}
-            placeholder="Custom (minutes)"
-            value={customGoal}
-            onChange={(e) => setCustomGoal(e.target.value)}
-            className="input"
+        <div className="mt-3">
+          <Stepper
+            label="Fine tune"
+            display={`${settings.dailyGoalMinutes} min`}
+            onDecrement={() =>
+              update({ dailyGoalMinutes: Math.max(15, settings.dailyGoalMinutes - 15) })
+            }
+            onIncrement={() =>
+              update({ dailyGoalMinutes: Math.min(1440, settings.dailyGoalMinutes + 15) })
+            }
+            disabledDecrement={settings.dailyGoalMinutes <= 15}
           />
-          <button
-            type="button"
-            onClick={() => {
-              const n = Number(customGoal);
-              if (n > 0) update({ dailyGoalMinutes: n });
-              setCustomGoal("");
-            }}
-            className="rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground"
-          >
-            Set
-          </button>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           Current goal: {settings.dailyGoalMinutes} minutes
@@ -96,11 +88,10 @@ function SettingsPage() {
           label="Enable Reminders"
           hint="Prepared for native notifications on mobile."
         >
-          <input
-            type="checkbox"
+          <ToggleSwitch
+            label="Enable Reminders"
             checked={settings.reminderEnabled}
-            onChange={(e) => update({ reminderEnabled: e.target.checked })}
-            className="h-5 w-9 cursor-pointer"
+            onChange={(v) => update({ reminderEnabled: v })}
           />
         </Row>
         {settings.reminderEnabled ? (
