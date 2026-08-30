@@ -5,6 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { useRef, useState } from "react";
 import { Download, FileJson, Upload, RotateCcw, Sparkles } from "lucide-react";
 import { db, ensureSettings } from "@/database/db";
+import { Stepper, ToggleSwitch } from "@/components/keyboard-free";
 import { downloadFile, exportCSV, exportJSON, importJSON, resetAllData, seedSampleData } from "@/utils/storage";
 
 export const Route = createFileRoute("/settings")({
@@ -19,7 +20,6 @@ const INTERVALS = [30, 60, 90, 120];
 
 function SettingsPage() {
   const settings = useLiveQuery(() => ensureSettings(), []);
-  const [customGoal, setCustomGoal] = useState("");
   const [confirmReset, setConfirmReset] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
