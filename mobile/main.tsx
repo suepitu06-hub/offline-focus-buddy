@@ -13,7 +13,7 @@ const queryClient = new QueryClient();
 const router = createRouter({
   routeTree,
   context: { queryClient },
-  scrollRestoration: false,
+  scrollRestoration: true,
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
   history: createMemoryHistory({ initialEntries: ["/"] }),

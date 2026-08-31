@@ -117,7 +117,7 @@ function RootComponent() {
       <div
         className="bg-background"
         style={{
-          minHeight: "100dvh",
+          minHeight: "100%",
           paddingBottom: "calc(6rem + var(--kb-inset, 0px))",
         }}
       >
