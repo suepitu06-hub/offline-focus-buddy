@@ -53,11 +53,19 @@ function Stats() {
     day: shortDayLabel(d),
     minutes: totals[d] || 0,
   }));
-  const last30 = lastNDates(30).map((d) => ({
-    day: d.slice(5),
-    minutes: totals[d] || 0,
-  }));
+  const monthMap: Record<string, number> = {};
+  for (const d of lastNDates(180)) {
+    const key = d.slice(0, 7);
+    monthMap[key] = (monthMap[key] || 0) + (totals[d] || 0);
+  }
+  const months = Object.keys(monthMap)
+    .sort()
+    .map((key) => ({ month: key, minutes: monthMap[key] }));
   const cat = categoryDistribution(activities);
+
+  const max7 = Math.max(1, ...last7.map((d) => d.minutes));
+  const maxMonth = Math.max(1, ...months.map((m) => m.minutes));
+  const catTotal = cat.reduce((s, c) => s + c.value, 0) || 1;
 
   return (
     <div className="space-y-5 p-5">
@@ -78,68 +86,64 @@ function Stats() {
       </section>
 
       <ChartCard title="Last 7 Days">
-        {RENDER_CHARTS ? (
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={last7}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-              <XAxis dataKey="day" stroke="var(--color-muted-foreground)" fontSize={12} />
-              <YAxis stroke="var(--color-muted-foreground)" fontSize={12} />
-              <Tooltip
-                formatter={(v: any) => formatMinutes(Number(v))}
-                contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12 }}
-              />
-              <Bar dataKey="minutes" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        ) : (
-          <div style={{ height: 200 }} />
-        )}
-      </ChartCard>
-
-      <ChartCard title="Monthly Trend">
-        {RENDER_CHARTS ? (
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={last30}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-              <XAxis dataKey="day" stroke="var(--color-muted-foreground)" fontSize={10} />
-              <YAxis stroke="var(--color-muted-foreground)" fontSize={12} />
-              <Tooltip
-                formatter={(v: any) => formatMinutes(Number(v))}
-                contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12 }}
-              />
-              <Line type="monotone" dataKey="minutes" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        ) : (
-          <div style={{ height: 200 }} />
-        )}
-      </ChartCard>
-
-      <ChartCard title="Category Distribution">
-        {RENDER_CHARTS ? (
-          <ResponsiveContainer width="100%" height={240}>
-            <PieChart>
-              <Pie data={cat} dataKey="value" nameKey="name" outerRadius={80} label>
-                {cat.map((c) => (
-                  <Cell key={c.name} fill={CATEGORY_COLORS[c.name]} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(v: any) => formatMinutes(Number(v))} />
-            </PieChart>
-          </ResponsiveContainer>
-        ) : (
-          <div style={{ height: 240 }} />
-        )}
-        <ul className="mt-3 grid grid-cols-2 gap-2 text-xs">
-          {cat.map((c) => (
-            <li key={c.name} className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full" style={{ background: CATEGORY_COLORS[c.name] }} />
-              <span className="text-muted-foreground">{c.name}</span>
-              <span className="ml-auto font-medium">{formatMinutes(c.value)}</span>
+        <ul className="space-y-2">
+          {last7.map((d) => (
+            <li key={d.day} className="flex items-center gap-3 text-xs">
+              <span className="w-10 shrink-0 text-muted-foreground">{d.day}</span>
+              <span className="h-3 flex-1 overflow-hidden rounded-full bg-muted">
+                <span
+                  className="block h-full rounded-full bg-primary"
+                  style={{ width: `${Math.round((d.minutes / max7) * 100)}%` }}
+                />
+              </span>
+              <span className="w-14 shrink-0 text-right font-medium">{formatMinutes(d.minutes)}</span>
             </li>
           ))}
         </ul>
       </ChartCard>
+
+      <ChartCard title="Monthly Trend">
+        <ul className="space-y-2">
+          {months.map((m) => (
+            <li key={m.month} className="flex items-center gap-3 text-xs">
+              <span className="w-14 shrink-0 text-muted-foreground">{m.month}</span>
+              <span className="h-3 flex-1 overflow-hidden rounded-full bg-muted">
+                <span
+                  className="block h-full rounded-full bg-primary"
+                  style={{ width: `${Math.round((m.minutes / maxMonth) * 100)}%` }}
+                />
+              </span>
+              <span className="w-14 shrink-0 text-right font-medium">{formatMinutes(m.minutes)}</span>
+            </li>
+          ))}
+        </ul>
+      </ChartCard>
+
+      <ChartCard title="Category Distribution">
+        <ul className="space-y-3">
+          {cat.map((c) => {
+            const pct = Math.round((c.value / catTotal) * 100);
+            return (
+              <li key={c.name} className="text-xs">
+                <div className="mb-1 flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full" style={{ background: CATEGORY_COLORS[c.name] }} />
+                  <span className="text-muted-foreground">{c.name}</span>
+                  <span className="ml-auto font-medium">
+                    {formatMinutes(c.value)} · {pct}%
+                  </span>
+                </div>
+                <span className="block h-3 overflow-hidden rounded-full bg-muted">
+                  <span
+                    className="block h-full rounded-full"
+                    style={{ width: `${pct}%`, background: CATEGORY_COLORS[c.name] }}
+                  />
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </ChartCard>
+
     </div>
   );
 }
