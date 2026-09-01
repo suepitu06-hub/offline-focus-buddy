@@ -32,6 +32,10 @@ import { StatCard } from "@/components/StatCard";
 import { EmptyState } from "@/components/EmptyState";
 import { CATEGORY_COLORS } from "@/constants/categories";
 
+// DIAGNOSTIC EXPERIMENT #3: temporarily skip rendering the three Recharts
+// components (Bar, Line, Pie). Set back to true to restore charts.
+const RENDER_CHARTS = false;
+
 export const Route = createFileRoute("/stats")({
   head: () => ({
     meta: [{ title: "Statistics — Screen Time Management" }],
