@@ -1,19 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useLiveQuery } from "dexie-react-hooks";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  CartesianGrid,
-} from "recharts";
 import { db, ensureSettings } from "@/database/db";
 import { todayISO, lastNDates, shortDayLabel } from "@/utils/date";
 import {
@@ -32,16 +18,13 @@ import { StatCard } from "@/components/StatCard";
 import { EmptyState } from "@/components/EmptyState";
 import { CATEGORY_COLORS } from "@/constants/categories";
 
-// DIAGNOSTIC EXPERIMENT #3: temporarily skip rendering the three Recharts
-// components (Bar, Line, Pie). Set back to true to restore charts.
-const RENDER_CHARTS = false;
-
 export const Route = createFileRoute("/stats")({
   head: () => ({
     meta: [{ title: "Statistics — Screen Time Management" }],
   }),
   component: Stats,
 });
+
 
 function Stats() {
   const settings = useLiveQuery(() => ensureSettings(), []);
