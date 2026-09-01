@@ -95,46 +95,58 @@ function Stats() {
       </section>
 
       <ChartCard title="Last 7 Days">
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={last7}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-            <XAxis dataKey="day" stroke="var(--color-muted-foreground)" fontSize={12} />
-            <YAxis stroke="var(--color-muted-foreground)" fontSize={12} />
-            <Tooltip
-              formatter={(v: any) => formatMinutes(Number(v))}
-              contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12 }}
-            />
-            <Bar dataKey="minutes" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        {RENDER_CHARTS ? (
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={last7}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+              <XAxis dataKey="day" stroke="var(--color-muted-foreground)" fontSize={12} />
+              <YAxis stroke="var(--color-muted-foreground)" fontSize={12} />
+              <Tooltip
+                formatter={(v: any) => formatMinutes(Number(v))}
+                contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12 }}
+              />
+              <Bar dataKey="minutes" fill="var(--color-primary)" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div style={{ height: 200 }} />
+        )}
       </ChartCard>
 
       <ChartCard title="Monthly Trend">
-        <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={last30}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-            <XAxis dataKey="day" stroke="var(--color-muted-foreground)" fontSize={10} />
-            <YAxis stroke="var(--color-muted-foreground)" fontSize={12} />
-            <Tooltip
-              formatter={(v: any) => formatMinutes(Number(v))}
-              contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12 }}
-            />
-            <Line type="monotone" dataKey="minutes" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
-          </LineChart>
-        </ResponsiveContainer>
+        {RENDER_CHARTS ? (
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={last30}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+              <XAxis dataKey="day" stroke="var(--color-muted-foreground)" fontSize={10} />
+              <YAxis stroke="var(--color-muted-foreground)" fontSize={12} />
+              <Tooltip
+                formatter={(v: any) => formatMinutes(Number(v))}
+                contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 12 }}
+              />
+              <Line type="monotone" dataKey="minutes" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div style={{ height: 200 }} />
+        )}
       </ChartCard>
 
       <ChartCard title="Category Distribution">
-        <ResponsiveContainer width="100%" height={240}>
-          <PieChart>
-            <Pie data={cat} dataKey="value" nameKey="name" outerRadius={80} label>
-              {cat.map((c) => (
-                <Cell key={c.name} fill={CATEGORY_COLORS[c.name]} />
-              ))}
-            </Pie>
-            <Tooltip formatter={(v: any) => formatMinutes(Number(v))} />
-          </PieChart>
-        </ResponsiveContainer>
+        {RENDER_CHARTS ? (
+          <ResponsiveContainer width="100%" height={240}>
+            <PieChart>
+              <Pie data={cat} dataKey="value" nameKey="name" outerRadius={80} label>
+                {cat.map((c) => (
+                  <Cell key={c.name} fill={CATEGORY_COLORS[c.name]} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(v: any) => formatMinutes(Number(v))} />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <div style={{ height: 240 }} />
+        )}
         <ul className="mt-3 grid grid-cols-2 gap-2 text-xs">
           {cat.map((c) => (
             <li key={c.name} className="flex items-center gap-2">
